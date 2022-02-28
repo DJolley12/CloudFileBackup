@@ -8,8 +8,7 @@ backups for your source code, but aren't ready to commit certain changes. Each W
   "your/local/directory/to/backup/watch"
   ],
   "BackupDirectories": [
-  "your/cloud/directory/to/backup/" /// Leave off the last point, it will automatically be created.
-  /// You can reuse the same backup directory as long as you specify it for each watch directory
+  "your/cloud/directory/to/backup/watch" 
   ]
   ```
   Set ExecutionInterval to desired time in milliseconds. Backups will be ran once every interval set, and in parallel for every specified watch directory. 
