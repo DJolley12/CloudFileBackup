@@ -5,15 +5,16 @@ public class FileSynchronizer
     private string source { get; }
     private string destination { get; }
 
-    public FileSynchronizer(ILogger logger, string destinationString, string sourceString)
+    public FileSynchronizer(ILogger logger, string sourceString, string destinationString)
     {
-        if (!Directory.Exists(source))
+        if (!Directory.Exists(sourceString))
         {
-            throw new Exception($"Invalid source directory {source}");
+            throw new Exception($"Invalid source directory {sourceString}");
         }
 
-        destination = destinationString;
+        _logger = logger;
         source = sourceString;
+        destination = destinationString;
     }
 
     public Task Synchronize()
