@@ -4,8 +4,9 @@ public class FileSynchronizer
 
     private string source { get; }
     private string destination { get; }
+    private string[] _ignoreFolders { get; }
 
-    public FileSynchronizer(ILogger logger, string sourceString, string destinationString)
+    public FileSynchronizer(ILogger logger, string sourceString, string destinationString, string[] ignoreFolders)
     {
         if (!Directory.Exists(sourceString))
         {
@@ -15,6 +16,7 @@ public class FileSynchronizer
         _logger = logger;
         source = sourceString;
         destination = destinationString;
+        _ignoreFolders = ignoreFolders;
     }
 
     public Task Synchronize()
@@ -36,6 +38,11 @@ public class FileSynchronizer
 
     private void SynchronizeRecursively(DirectoryInfo sourceDirectoryInfo, DirectoryInfo destDirectoryInfo)
     {
+        if (_ignoreFolders.Contains(sourceDirectoryInfo.Name))
+        {
+            return;
+        }
+
         SyncFiles(sourceDirectoryInfo, destDirectoryInfo);
 
         foreach (var sourceDir in sourceDirectoryInfo.GetDirectories())

@@ -23,7 +23,8 @@ public class Worker : BackgroundService
         for (int i = 0; i < fileSyncOptions.WatchDirectories.Length; i++)
         {
             _fileSynchronizers.Add(
-                    new FileSynchronizer(_logger, fileSyncOptions.WatchDirectories[i], fileSyncOptions.BackupDirectories[i]));
+                    new FileSynchronizer(_logger, fileSyncOptions.WatchDirectories[i], fileSyncOptions.BackupDirectories[i], fileSyncOptions.IgnoreFolders)
+                    );
         }
     }
 
