@@ -5,6 +5,8 @@ public class FileSynchronizer
     private string source { get; }
     private string destination { get; }
     private string[] _ignoreFolders { get; }
+    private string lastDirectory { get; set; } = "";
+    private string lastFile { get; set; } = "";
 
     public FileSynchronizer(ILogger logger, string sourceString, string destinationString, string[] ignoreFolders)
     {
@@ -30,7 +32,7 @@ public class FileSynchronizer
         }
         catch (Exception e)
         {
-            _logger.LogWarning(e, "An exception occurred");
+            _logger.LogWarning(e, $"An exception occurred. Last file: {lastFile}\nLast directory: {lastDirectory}");
         }
 
         return Task.CompletedTask;
@@ -48,9 +50,15 @@ public class FileSynchronizer
         foreach (var sourceDir in sourceDirectoryInfo.GetDirectories())
         {
             var destDir = destDirectoryInfo.GetDirectories().FirstOrDefault(dd => dd.Name == sourceDir.Name);
+            lastDirectory = sourceDir.FullName;
 
             if (destDir is null)
             {
+                if (_ignoreFolders.Contains(sourceDirectoryInfo.Name))
+                {
+                    continue;
+                }
+
                 destDir = destDirectoryInfo.CreateSubdirectory(sourceDir.Name);
             }
 
@@ -62,6 +70,7 @@ public class FileSynchronizer
     {
         foreach (var sourceFileInfo in sourceDirectoryInfo.GetFiles())
         {
+            lastFile = sourceFileInfo.FullName;
             var existingFile = destDirectoryInfo.GetFiles().FirstOrDefault(f => f.Name == sourceFileInfo.Name);
 
             if (existingFile is null)
