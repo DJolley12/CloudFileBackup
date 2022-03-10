@@ -5,25 +5,31 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IConfiguration _config;
     private readonly List<FileSynchronizer> _fileSynchronizers;
-    private FileSyncOptions fileSyncOptions { get; set; }
+    private FileSyncOptions _fileSyncOptions { get; set; }
 
-    public Worker(ILogger<Worker> logger,IConfiguration config)
+    public Worker(ILogger<Worker> logger, IConfiguration config, FileSyncOptions fileSyncOptions)
     {
         _logger = logger;
         _config = config;
-        fileSyncOptions = _config.GetSection(FileSyncOptions.Options).Get<FileSyncOptions>();
+        _fileSyncOptions = fileSyncOptions;
 
-        if (fileSyncOptions.WatchDirectories.Length < 1)
+        if (_fileSyncOptions is null)
         {
-            _logger.LogError("WatchDirectories has no values.", fileSyncOptions);
+            _logger.LogError($"{nameof(_fileSyncOptions)} is null");
+            throw new Exception($"{nameof(_fileSyncOptions)} is null");
+        }
+
+        if (_fileSyncOptions.WatchDirectories.Length < 1)
+        {
+            _logger.LogError("WatchDirectories has no values.", _fileSyncOptions);
             throw new Exception("WatchDirectories has no values.");
         }
 
         _fileSynchronizers = new List<FileSynchronizer>();
-        for (int i = 0; i < fileSyncOptions.WatchDirectories.Length; i++)
+        for (int i = 0; i < _fileSyncOptions.WatchDirectories.Length; i++)
         {
             _fileSynchronizers.Add(
-                    new FileSynchronizer(_logger, fileSyncOptions.WatchDirectories[i], fileSyncOptions.BackupDirectories[i], fileSyncOptions.IgnoreFolders)
+                    new FileSynchronizer(_logger, _fileSyncOptions.WatchDirectories[i], _fileSyncOptions.BackupDirectories[i], _fileSyncOptions.IgnoreFolders)
                     );
         }
     }
@@ -39,7 +45,7 @@ public class Worker : BackgroundService
                         fileSync.Synchronize();
                     });
 
-            await Task.Delay(fileSyncOptions.ExecutionInterval, stoppingToken);
+            await Task.Delay(_fileSyncOptions.ExecutionInterval, stoppingToken);
         }
     }
 }
